@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Unit testing with Mocha, Sinon and Chai</title>
+
+    <meta name="description" content="A quick overview of frontend unit testing with mocha, sinon and chai">
+    <meta name="author" content="Emilia Cristea">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+
+    <!-- All links should open in a new tab -->
+    <base target="_blank">
+
+    <style>
+        .reveal .slides section li {
+            margin: 20px 0;
+        }
+
+        .reveal section img {
+            background: none;
+            border: 0 none;
+            box-shadow: none;
+        }
+
+        .reveal h2 {
+            text-transform: uppercase;
+        }
+
+        .reveal pre {
+            width: 100%;
+        }
+
+        .reveal pre code.hj-code {
+            font-size: 16px;
+            max-height: 600px;
+            padding-left: 20px;
+        }
+
+        .reveal pre code mark {
+            font-weight: bold;
+        }
+
+        .reveal sup {
+            font-size: 22px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="reveal">
+
+    <div class="slides">
+        <header id="slide-header"></header>
+
+        <!------------------------##################--------------------------->
+        <section title="unit testing the frontend" id="home" data-background-color="#8EDBE5">
+            <h1>Unit Testing The Frontend</h1>
+            <h3>with Mocha, Sinon and Chai</h3>
+            <aside class="notes">
+                - Unit tests exist to test individual units of software functionality. A unit is a module, component, or
+                function. They’re bits of the program that can work independently of the rest of the program. The
+                presence of unit testing implies that the software is designed in a modular fashion.
+            </aside>
+        </section>
+    </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+<script>
+
+    // Full list of configuration options available at:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        slideNumber: 'c/t',
+        viewDistance: 5,
+
+        transition: 'concave', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+            {
+                src: 'lib/js/classList.js', condition: function() {
+                return !document.body.classList;
+            }
+            },
+            {
+                src: 'plugin/markdown/marked.js', condition: function() {
+                return !!document.querySelector('[data-markdown]');
+            }
+            },
+            {
+                src: 'plugin/markdown/markdown.js', condition: function() {
+                return !!document.querySelector('[data-markdown]');
+            }
+            },
+            {
+                src: 'plugin/highlight/highlight.js', async: true, callback: function() {
+                hljs.initHighlightingOnLoad();
+            }
+            },
+            {src: 'plugin/zoom-js/zoom.js', async: true},
+            {src: 'plugin/notes/notes.js', async: true}
+        ]
+    });
+
+    var myHeader = document.querySelector('#slide-header');
+    Reveal.addEventListener('slidechanged', function(event) {
+        // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+        if(event.currentSlide.dataset.header) {
+            myHeader.innerHTML = event.currentSlide.dataset.header;
+        } else {
+            myHeader.innerHTML = '';
+        }
+    });
+
+</script>
+
+</body>
+</html>

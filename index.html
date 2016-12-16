@@ -74,9 +74,8 @@
 <div class="reveal">
 
     <div class="slides">
-        <header id="slide-header"></header>
 
-        <!------------------------##################--------------------------->
+        <!------------------------# INTRO #--------------------------->
         <section title="unit testing the frontend" id="home" data-background-color="#8EDBE5">
             <h1>Unit Testing The Frontend</h1>
             <h3>with Mocha, Sinon and Chai</h3>
@@ -86,6 +85,620 @@
                 presence of unit testing implies that the software is designed in a modular fashion.
             </aside>
         </section>
+
+
+        <!------------------------# OVERVIEW #--------------------------->
+        <section title="overview" data-background-color="#8EDBE5">
+            <h2>Overview</h2>
+            <ul>
+                <li class="fragment">This presentation aims to quickly explain some of the key concepts from the
+                    <a href="https://mochajs.org/">Mocha</a> testing framework,
+                    as well as concepts from the <a href="http://sinonjs.org/">Sinon</a> mocking framework and
+                    <a href="http://chaijs.com/">Chai</a> assertion library.
+                </li>
+                <li class="fragment">Examples are written with a Backbone application in mind but the overall concepts are
+                    framework-agnostic so hopefully they are easy to follow.
+                </li>
+                <li class="fragment">Companion piece to <a href="https://github.com/ecris87/frontend-unit-testing-presentation">Unit
+                    Testing the Frontend</a>, a presentation about why we should write unit tests for our frontend code.
+                </li>
+            </ul>
+        </section>
+
+
+        <!------------------------# SETUP #--------------------------->
+        <section title="setup" data-background-color="#8EDBE5">
+            <section title="basic setup">
+                <h2>Basic Setup</h2>
+                <p style="text-align: left">
+                    <code>$ npm install --save-dev mocha</code><br>
+                    <code>$ npm install --save-dev sinon</code><br>
+                    <code>$ npm install --save-dev chai</code><br>
+                    <code>$ npm install --save-dev sinon-chai</code><br>
+                    <code>$ npm install --save-dev dirty-chai</code>
+                </p>
+                <p>And follow the <a href="https://mochajs.org/#getting-started">Mocha getting started guide.</a></p>
+            </section>
+            <section title="basic setup">
+                <h2>Basic Setup</h2>
+                <p>Notes:</p>
+                <ul>
+                    <li class="fragment"><a href="http://chaijs.com/plugins/chai-sinon/">sinon-chai</a> plugin was
+                        included because it provides easy to use custom assertions for Sinon.
+                    </li>
+                    <li class="fragment"><a href="https://github.com/prodatakey/dirty-chai">dirty-chai</a> plugin was
+                        included because it provides lint-friendly terminating assertions and converts all property
+                        assertions to method assertions (thus getting rid of false positives).
+                    </li>
+                </ul>
+            </section>
+            <section title="optional setup">
+                <h2>Optional Setup</h2>
+                <ul>
+                    <li class="fragment">There are a lot plugins which extend Chai and provide additional assertions.</li>
+                    <li class="fragment">Choose plugins that are relevant to your code base and help you write assertions in a fluent
+                        language.
+                    </li>
+                    <li class="fragment">Full list: <a href="http://chaijs.com/plugins/">http://chaijs.com/plugins/</a></li>
+                </ul>
+            </section>
+        </section>
+
+
+        <!------------------------# MOCHA #--------------------------->
+        <section title="mocha" data-background-color="#8EDBE5">
+            <section title="mocha">
+                <h2>Mocha</h2>
+                <p class="fragment">Mocha is a feature-rich JavaScript test framework running on Node.js and in the
+                    browser, making asynchronous testing simple and fun.</p>
+            </section>
+
+            <section title="test cases">
+                <h3>Mocha: Test Cases - <b>describe</b> and <b>it</b> blocks</h3>
+                <ul>
+                    <li class="fragment">These are available from the default "BDD"-style Mocha interface and provide a way of defining
+                        and organizing your tests.
+                    </li>
+                    <li class="fragment">It's recommended to use BDD syntax in their text description: "when ... /
+                        should ..." in order to improve readability and have that tests also serve as documentation.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="test cases">
+                <h3>Mocha: Test Cases - <b>describe</b> and <b>it</b> blocks</h3>
+                <ul>
+                    <li class="fragment">it() is a test case and should contain assertions.</li>
+                    <li class="fragment">describe() can be referred to as a test suite, it serves only for grouping test cases.</li>
+                    <li class="fragment">describe() blocks can be nested, however, in order to keep tests maintainable, it's a good idea
+                        to follow the inception rule: don't go more than 3 levels deep.</li>
+                </ul>
+            </section>
+
+            <section title="test cases example">
+                <h3>Mocha: Test Cases - <b>describe</b> and <b>it</b> blocks</h3>
+                <pre contenteditable="true">
+                <code class="javascript hljs hj-code">
+    describe('when view is initialised', () => {
+        it('should have a model property', () => {
+            expect(view.model).to.exist();
+            expect(view.model).to.be.instanceOf(Backbone.Model);
+        });
+
+        it('should throw error if it does not receive a model option', () => {
+            expect(function() {
+                new ProfileView();
+            }).to.throw(Error);
+        });
+    });
+                </code>
+                </pre>
+                <aside class="notes">
+                    - You have to pass a function to expect. Like done above or using bind, not the result of calling
+                    the function you want to test: expect(myFunc()).to.throw(Error).
+                </aside>
+            </section>
+
+            <section title="test cases">
+                <h3>Mocha: Test Cases - <b>context</b> blocks</h3>
+                <ul>
+                    <li class="fragment">context() is just an alias for describe()</li>
+                    <li class="fragment">Recommended to use because it's more readable than having 2 nested describe blocks.</li>
+                    <li class="fragment">Following BDD syntax, description text should start with "and".</li>
+                </ul>
+            </section>
+
+            <section title="test cases example">
+                <h3>Mocha: Test Cases - <b>context</b> blocks</h3>
+                <pre contenteditable="true">
+                <code class="javascript hljs hj-code">
+    describe('when user is prompted to save the profile changes', () => {
+
+        context('and the provided name is valid', () => {
+            it('should save the changes to the model', () => {
+                expect(spies.model.save).to.have.been.calledOnce();
+            });
+        });
+
+        context('and the provided name is not valid', () => {
+            it('should not save the changes to the model', () => {
+                expect(spies.model.save).not.to.have.been.called();
+            });
+        });
+    });
+                </code>
+                </pre>
+            </section>
+
+            <section title="exclusive test cases">
+                <h3>Dealing with failing tests</h3>
+                <ul>
+                    <li class="fragment">A great way to start is to treat the failing test(s) in isolation using the
+                        exclusivity feature
+                    </li>
+                </ul>
+                <pre class="fragment" contenteditable="true">
+                <code class="javascript hljs hj-code">
+describe('when view is initialised', () => {
+    it.only('should have a model property',...
+    it('should throw error if it does not receive a model option',...
+});
+
+describe.only('when view is rendered',...
+    it('should have a title element',...
+    it('should show the user information',...
+});
+                </code>
+                </pre>
+            </section>
+
+            <section title="ignoring test cases">
+                <h3>Dealing with failing tests</h3>
+                <ul>
+                    <li class="fragment">Of course, ideally, they should be fixed, but due to time constraints, that's not always possible, so
+                    instead of commenting them out, simply tell mocha to ignore it:</li>
+                </ul>
+                <pre class="fragment" contenteditable="true">
+                <code class="javascript hljs hj-code">
+describe.skip('when view is initialised', () => {
+    it('should have a model property',...
+    it('should throw error if it does not receive a model option',...
+});
+
+// OR
+
+xdescribe('when view is initialised',...
+xit('should have a model property',...
+                </code>
+                </pre>
+            </section>
+
+            <section title="hooks">
+                <h3>Mocha: Hooks</h3>
+                <ul>
+                    <li class="fragment">Also available from the default "BDD"-style Mocha interface.</li>
+                    <li class="fragment">They are used to set up preconditions and clean up after the test cases/suites.</li>
+                </ul>
+            </section>
+
+            <section title="hooks example">
+                <h3>Mocha: Hooks</h3>
+                <pre contenteditable="true">
+                <code class="javascript hljs hj-code">
+    describe('hooks', function() {
+
+      before(function() {
+        console.log("i'm going to run once, before all tests in this block");
+      });
+
+      beforeEach(function() {
+        console.log("i'm going to run before each test in this block");
+      });
+
+      afterEach(function() {
+        console.log("i'm going to run after each test in this block");
+      });
+
+      after(function() {
+        console.log("i'm going to run once, after all tests in this block");
+      });
+
+      // test cases
+    });
+                </code>
+                </pre>
+            </section>
+
+            <section title="hooks example">
+                <h3>Mocha: Hooks</h3>
+                <pre contenteditable="true">
+                <code class="javascript hljs hj-code">
+    /**
+     * Example:
+     * Profile.view.spec.js - a file which contains tests for Profile.view.js
+     */
+    describe('Profile.view', () => {
+        let view, model, sandbox;
+
+        before(() => {
+            sandbox = sinon.sandbox.create();
+            model = new UserModel({firstName: 'Barbara', lastName: 'Gordon'});
+            view = new ProfileView({model: model});
+            view.render();
+        });
+
+        after(() => {
+            view.remove();
+            sandbox.restore();
+        });
+
+        // test cases
+    });
+                </code>
+                </pre>
+                <aside class="notes">
+                    - These should be used to set up preconditions and clean up after your tests.
+                    - Passing arrow functions (“lambdas”) to Mocha is discouraged. Due to the lexical binding of this,
+                    such functions are unable to access the Mocha context (for example this.timeout).
+                    - Do not initialize variables outside of hooks.
+                </aside>
+            </section>
+
+            <section title="hooks example debugging">
+                <h3>Write/debug tests for views more easily</h3>
+                <ul>
+                    <li class="fragment">We can modify the example seen before, in order to see the content of our view
+                        rendered in the browser.
+                        <span class="fragment">Of course, revert these changes before committing ;)</span>
+                    </li>
+                </ul>
+                <pre class="fragment" contenteditable="true">
+                <code class="javascript hljs hj-code" data-noescape>
+    before(() => {
+        view = new ProfileView({model: model});
+        view.render();
+
+        <mark>$('body').append(view.$el);</mark>
+    });
+
+
+    after(() => {
+        <mark>// view.remove();</mark>
+        sandbox.restore();
+    });
+                </code>
+                </pre>
+            </section>
+
+            <section title="root level hooks">
+                <h3>Mocha: Root Level Hooks</h3>
+                <ul>
+                    <li class="fragment">It's possible to define “root”-level hooks.</li>
+                    <li class="fragment">For example, adding a beforeEach() hook outside of all describe() blocks will cause its callback
+                        to run before every test in every file (this is because Mocha has an implied describe block,
+                        called the “root suite”).
+                    </li>
+                </ul>
+            </section>
+
+            <!--
+            - dealing with promises
+            - where to define stubs and spies
+            - using prototype for spying
+            -->
+
+        </section>
+
+
+        <!------------------------# CHAI #--------------------------->
+        <section title="chai" data-background-color="#8EDBE5">
+            <section title="chai">
+                <h2>Chai</h2>
+                <p class="fragment">Chai is a BDD / TDD assertion library for node and the browser that can be
+                    delightfully paired with any javascript testing framework.</p>
+            </section>
+
+            <section title="chai assertions">
+                <h3>Chai: Interfaces</h3>
+                <ul>
+                    <li class="fragment">Chai has three different assertion styles: </li>
+                    <li class="fragment">The <b>Expect API</b> and <b>Should API</b> covers the BDD assertion styles.</li>
+                    <li class="fragment">The <b>Assert API</b> covers the TDD assertion style.</li>
+                    <li class="fragment">The chain-capable BDD styles provide an expressive language & readable style,
+                        while the TDD assert style provides a more classical feel.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="chai assertions">
+                <h3>Chai: Expect Interface</h3>
+                <p class="fragment">The following examples will use the <b>Expect</b> interface, as it provides
+                        easy to read, natural language assertions.
+                </p>
+            </section>
+
+            <section title="chai assertions">
+                <h3>Chai: Expect Interface</h3>
+                <pre class="fragment" contenteditable="true">
+                <code class="javascript hljs hj-code" data-noescape>
+let beverages = { tea: [ 'chai', 'matcha', 'oolong' ] };
+
+expect(beverages).to.be.an('object');
+
+expect(beverages).to.have.property('tea').with.length(3);
+
+
+let  answer = 43;
+
+// AssertionError: expected 43 to equal 42.
+expect(answer).to.equal(42);
+
+// AssertionError: topic [answer]: expected 43 to equal 42.
+expect(answer, 'topic [answer]').to.equal(42);
+                </code>
+                </pre>
+            </section>
+
+            <section title="chai assertions">
+                <h3>Chai: Assertions Examples</h3>
+                <pre class="fragment" contenteditable="true">
+                <code class="javascript hljs hj-code" data-noescape>
+
+expect(user.get('lastLoginTime')).to.be.null();
+
+expect(user.isLoggedIn()).to.be.true();
+
+expect(spyStatisticsRecorder.callCount).to.equal(1);
+
+expect(userCollection).to.have.length(1);
+
+expect(view.$('.user-name')).to.exist();
+
+expect(view.$('input[type=checkbox]')).to.be.checked();
+
+// and many more, also to note, the negation for these methods is possible too
+                </code>
+                </pre>
+            </section>
+        </section>
+
+
+        <!------------------------# SINON #--------------------------->
+        <section title="sinon" data-background-color="#8EDBE5">
+            <section title="sinon">
+                <h2>Sinon</h2>
+                <p class="fragment">Sinon.JS is a mocking framework, it provides standalone and test framework agnostic
+                    JavaScript test spies, stubs and mocks.</p>
+            </section>
+
+            <section title="sinon sandbox">
+                <h3>Sinon: Sandbox</h3>
+                <ul>
+                    <li class="fragment">Working with Sinon means we'll probably create a lot of fakes which need to be
+                        restored.
+                    </li>
+                    <li class="fragment">Sandboxes simplify working with fakes (fake timers, fake XHR, spies and stubs)
+                        because it provides an easy way to clean them up all at once.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="sinon sandbox">
+                <h3>Sinon: Sandbox</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+    // top level so every describe block can have access
+    let sandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+
+        // create all spies/stubs from the sandbox object, not from sinon directly
+        spies.render = sandbox.spy(view, 'render');
+        ...
+    });
+
+    afterEach(() => {
+        // auto-magically restore all spies and stubs between tests (the clean up)
+        sandbox.restore();
+    });
+                    </code>
+                    </pre>
+                <aside class="notes">
+                    - Mentions alternatives, in this case wrap your test function in sinon.test()
+                </aside>
+            </section>
+
+            <section title="sinon spies">
+                <h3>Sinon: Spies</h3>
+                <ul>
+                    <li class="fragment">A test spy is a function that records arguments, return value, the value of
+                        this and exception thrown (if any) for all its calls.
+                    </li>
+                    <li class="fragment">
+                        A test spy can be an anonymous function or it can wrap an existing function.
+                    </li>
+                    <li class="fragment">We need test-doubles (spies and stubs) for testing functions with side
+                        effects.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="sinon spies">
+                <h3>Sinon: Spies</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+        describe('when making a new order', () => {
+            let mockOptions;
+
+            beforeEach(() => {
+               spies.updateProductCount = sandbox.spy(view, 'updateProductCount');
+
+               mockOptions = {productId: 123};
+
+               // to note: we've attached the spies before calling the method
+               // where the functions they spy on are invoked
+               view.placeOrder(mockOptions);
+            });
+
+            it('should update the product count for the selected product', () => {
+                expect(spies.updateProductCount).to.have.been.calledOnce();
+                expect(spies.updateProductCount).to.have.been.calledWith(mockOptions);
+            });
+        });
+                    </code>
+                    </pre>
+            </section>
+
+            <section title="sinon spies">
+                <h3>Sinon: Anonymous Spies</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+        describe('when filtering the search results', () => {
+
+            beforeEach(() => {
+               spies.filtersChangedCallback = sandbox.spy();
+               view.on('filtersChanged', spies.filtersChangedCallback);
+
+               view.refineSearch();
+            });
+
+            it('should trigger event for parent view', () => {
+                expect(spies.filtersChangedCallback).to.have.been.calledOnce();
+            });
+        });
+                    </code>
+                    </pre>
+                <aside class="notes">
+                    - See more about spies and stubs here:
+                    <a href="https://semaphoreci.com/community/tutorials/best-practices-for-spies-stubs-and-mocks-in-sinon-js">Best
+                        Practices</a>
+                </aside>
+            </section>
+
+            <section title="sinon stubs">
+                <h3>Sinon: Stubs</h3>
+                <ul>
+                    <li class="fragment">A stub is very similar is the same as spy when it comes to the assertions we
+                        can make on it.
+                    </li>
+                    <li class="fragment">We use stubs when we don't want the code inside the stubbed method to be
+                        executed and/or we need it to return some mock data.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="sinon stubs">
+                <h3>Sinon: Stubs</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+        // stub a dependency when we have access to the instance
+        stubs.model.save = sandbox.stub(view.model, 'save');
+
+        // test what happens in the done callback of save
+        let mockSavePromise = $.Deferred().resolve();
+        stubs.model.save.returns(mockSavePromise);
+        expect(spies.showSuccessNotice).to.have.been.calledOnce();
+                    </code>
+                    </pre>
+            </section>
+
+            <section title="sinon stubs">
+                <h3>Sinon: Stubs</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+        // stub a dependency when we don't have access to the instance
+        stubs.confirmPopup = sandbox.stub(ConfirmPopupView.prototype);
+
+        // test that a confirmation popup has been initialized with the correct options
+        expect(stubs.confirmPopup.initialize).to.have.been.calledOnce();
+        expect(stubs.confirmPopup.initialize).to.have.been.calledWith(sinon.match({
+              headerText: 'Cancel Order',
+              messageText: 'Are you sure you want to cancel the order?'
+        }));
+
+        // stub an external library's method in order to test a method that uses it
+        sandbox.stub($.fn, 'is').withArgs(':visible').returns(true);
+        view.methodThatChecksIsVisible();
+        expect(view.model.get('selection')).to.eql(expectedProducts);
+                    </code>
+                    </pre>
+                <aside class="notes">
+                    - What about mocks? Don't use them, they're deprecated from sinon.
+                </aside>
+            </section>
+
+            <section title="sinon fake server">
+                <h3>Sinon: Fake Server</h3>
+                <ul>
+                    <li class="fragment">Sinon provides a fake implementation of XMLHttpRequest and provides several
+                        interfaces for manipulating objects created by it. This helps with testing requests made
+                        with XHR.
+                    </li>
+                    <li class="fragment">Sinon replaces the native XMLHttpRequest object with a custom implementation
+                        which does not send actual requests.
+                    <li class="fragment">Sinon's Fake Server is just a High-level API to manipulate `FakeXMLHttpRequest`
+                        instances.
+                    </li>
+                </ul>
+            </section>
+
+            <section title="sinon fake server">
+                <h3>Sinon: Fake Server</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+// mock the server
+let server = sandbox.useFakeServer();
+
+// mock a GET request from an endpoint that matches the given regex pattern
+server.respondWith('GET', /^\/api\/1_0\/product\/all/,
+       [httpStatus.ok, {'Content-Type': 'application/json'}, JSON.stringify(mockResponse)]);
+
+view.render();
+// render needs the mockResponse data so we instruct the server to respond after calling render
+server.respond();
+
+server.respondWith('DELETE', `/api/1_0/product/${productId}`, [httpStatus.noContent, {}, '']);
+providedConfirmCallback();
+server.respond();
+                    </code>
+                    </pre>
+            </section>
+
+            <section title="sinon fake timer">
+                <h3>Sinon: Fake Timer</h3>
+                <ul>
+                    <li class="fragment">Fake timers is a synchronous implementation of setTimeout and friends to allow
+                        you to more easily test code using them.
+                    </li>
+                    <li class="fragment">Sinon replaces the global setTimeout, clearTimeout, setInterval, clearInterval
+                        and Date with its custom implementation.
+                    </li>
+                    <li class="fragment"> It provides a clock object that has the ability to "manipulate time" through
+                        its tick method. It can also be used to control Date objects created through either new Date();
+                        or Date.now();
+                    </li>
+                </ul>
+            </section>
+
+            <section title="sinon fake timer">
+                <h3>Sinon: Fake Timer</h3>
+                <pre contenteditable="true">
+                    <code class="javascript hljs hj-code" data-noescape>
+    let WAIT_TIME = 500;
+    clock = sandbox.useFakeTimers();
+
+    let user = new UserModel();
+    let initialLoginDate = user.get('lastLoginDate');
+    clock.tick(WAIT_TIME);
+
+    user.login();
+    expect(user.get('lastLoginDate')).to.equal(initialLoginDate + WAIT_TIME);
+                    </code>
+                </pre>
+            </section>
+        </section>
+
     </div>
 
 </div>
